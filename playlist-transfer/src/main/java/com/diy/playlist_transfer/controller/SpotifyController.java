@@ -1,6 +1,9 @@
 package com.diy.playlist_transfer.controller;
 
+import com.diy.playlist_transfer.dto.SpotifyAlbumDTO;
+import com.diy.playlist_transfer.dto.SpotifyArtistDTO;
 import com.diy.playlist_transfer.dto.SpotifyPlaylistDTO;
+import com.diy.playlist_transfer.dto.SpotifySavedTracksDTO;
 import com.diy.playlist_transfer.service.SpotifyAuthService;
 import com.diy.playlist_transfer.service.SpotifyPlaylistService;
 import jakarta.servlet.http.HttpSession;
@@ -39,7 +42,7 @@ public class SpotifyController {
         String authorizationUrl = AUTH_URL +
                 "response_type=code" +
                 "&client_id=0ec373d0dd754676a50590bcf1dc5646" +
-                "&scope=playlist-read-private playlist-read-collaborative" +
+                "&scope=playlist-read-private playlist-read-collaborative user-library-read user-follow-read" +
                 "&redirect_uri=http://localhost:8080/spotify/auth/callback" +
                 "&state=random_state";
 
@@ -86,6 +89,54 @@ public class SpotifyController {
                 .onErrorResume(e->{
                     System.err.println("Spotify API error: " + e.getMessage());
                     return Mono.error(new RuntimeException("Error fetching playlists: " + e.getMessage()));
+                });
+    }
+
+    @GetMapping("/albums")
+    public Mono<ResponseEntity<List<SpotifyAlbumDTO>>> getUserSavedAlbums(HttpSession session) {
+        String accessToken = (String) session.getAttribute("spotifyAccessToken");
+
+        if (accessToken == null) {
+            return Mono.just(ResponseEntity.status(401).build());
+        }
+
+        return spotifyPlaylistService.getUserSavedAlbums(accessToken)
+                .map(ResponseEntity::ok)
+                .onErrorResume(e -> {
+                    System.err.println("Spotify API error: " + e.getMessage());
+                    return Mono.just(ResponseEntity.status(500).build());
+                });
+    }
+
+    @GetMapping("/tracks")
+    public Mono<ResponseEntity<List<SpotifySavedTracksDTO>>> getUserSavedTracks(HttpSession session){
+        String accessToken = (String) session.getAttribute("spotifyAccessToken");
+
+        if(accessToken == null) {
+            return Mono.just(ResponseEntity.status(401).build());
+        }
+        return spotifyPlaylistService.getUserSavedTracks(accessToken)
+                .map(tracks -> ResponseEntity.ok(tracks))
+                .onErrorResume(e -> {
+                    System.out.println("Spotify API error: " + e.getMessage());
+                    return Mono.just(ResponseEntity.status(500).build());
+                });
+
+    }
+
+    @GetMapping("/artists")
+    public Mono<ResponseEntity<List<SpotifyArtistDTO>>> getUserFavoriteArtists(HttpSession session) {
+        String accessToken = (String) session.getAttribute("spotifyAccessToken");
+
+        if(accessToken == null) {
+            return Mono.just(ResponseEntity.status(401).build());
+        }
+
+        return spotifyPlaylistService.getUserFavoriteArtists(accessToken)
+                .map(artists -> ResponseEntity.ok(artists))
+                .onErrorResume(e -> {
+                    System.out.println("Spotify API error: " + e.getMessage());
+                    return Mono.just(ResponseEntity.status(500).build());
                 });
     }
 
