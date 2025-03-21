@@ -7,13 +7,19 @@ import SearchBar from "./SearchBar.jsx";
 import Checkbox from '@mui/material/Checkbox';
 import Avatar from '@mui/material/Avatar';
 import SpotifyLogoN from "../assets/images/Spotify-Logo.jpg";
-import {useState} from "react";
+import {useAppContext} from "../contexts/AppContext.jsx";
 
 export function LibrarySection({playlists, albums, tracks, artists}) {
-    // === Lifted state ===
-    const [selectedAlbums, setSelectedAlbums] = useState(new Set());
-    const [selectedTracks, setSelectedTracks] = useState(new Set());
-    const [selectedArtists, setSelectedArtists] = useState(new Set());
+    const {
+        selectedAlbums,
+        setSelectedAlbums,
+        selectedTracks,
+        setSelectedTracks,
+        selectedArtists,
+        setSelectedArtists,
+        selectedPlaylists,
+        setSelectedPlaylists,
+    } = useAppContext();
 
     // === Handler for global checkbox ===
     const isEverythingSelected =
@@ -27,11 +33,17 @@ export function LibrarySection({playlists, albums, tracks, artists}) {
             setSelectedAlbums(new Set());
             setSelectedTracks(new Set());
             setSelectedArtists(new Set());
+            setSelectedPlaylists(new Set());
         } else {
             // Select everything
-            setSelectedAlbums(new Set(albums.map(album => album.album.id)));
-            setSelectedTracks(new Set(tracks.map(track => track.id)));
-            setSelectedArtists(new Set(artists.map(artist => artist.name)));
+            const albumIds = new Set(albums.map(album => album.album.id));
+            const trackIds = new Set(tracks.map(track => track.id));
+            const artistNames = new Set(artists.map(artist => artist.name));
+            const playlistIds = new Set(playlists.map(playlist => playlist.id));
+            setSelectedAlbums(albumIds);
+            setSelectedTracks(trackIds);
+            setSelectedArtists(artistNames);
+            setSelectedPlaylists(playlistIds);
         }
     };
 
@@ -49,7 +61,8 @@ export function LibrarySection({playlists, albums, tracks, artists}) {
                             !isEverythingSelected &&
                             (selectedAlbums.size > 0 ||
                                 selectedTracks.size > 0 ||
-                                selectedArtists.size > 0)
+                                selectedArtists.size > 0 ||
+                                selectedPlaylists.size > 0)
                         }
                         onChange={handleGlobalCheckboxChange}
                     />
@@ -99,6 +112,16 @@ export function LibrarySection({playlists, albums, tracks, artists}) {
                             name={playlist.name}
                             trackCount={playlist.trackCount}
                             imageUrl={playlist.imageUrl}
+                            isSelected={selectedPlaylists.has(playlist.id)}
+                            onToggle={() => {
+                                const newSelected = new Set(selectedPlaylists);
+                                if(newSelected.has(playlist.id)) {
+                                    newSelected.delete(playlist.id)
+                                } else {
+                                    newSelected.add(playlist.id);
+                                }
+                                setSelectedPlaylists(newSelected)
+                            }}
                         />
                     ))
                 ) : (

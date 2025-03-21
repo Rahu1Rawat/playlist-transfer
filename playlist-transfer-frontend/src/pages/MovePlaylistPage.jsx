@@ -27,7 +27,7 @@ function MovePlaylistPage() {
     return (
         <div className="bg-customBlue text-white min-h-screen">
             <LogoBar />
-            <CustomButton />
+            <CustomButton text="Choose Destination"/>
             <div className="flex flex-col items-center gap-8 pb-8">
                 <div className="mt-3">
                     <p className="font-bold text-5xl">Select playlist to move</p>

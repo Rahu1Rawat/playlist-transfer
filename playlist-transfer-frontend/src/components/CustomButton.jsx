@@ -1,10 +1,10 @@
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 
-const CustomButton = () => {
+const CustomButton = ({text}) => {
     const navigate = useNavigate();
 
     const handleClick = () => {
-        // yet to decide
+        navigate("/select-destination")
     };
 
     return (
@@ -13,7 +13,7 @@ const CustomButton = () => {
                 onClick={handleClick}
                 className="bg-buttonBlue hover:bg-green-600 text-white font-bold py-3 px-6 shadow-lg w-96 rounded-full text-xl"
             >
-                Choose Destination
+                {text}
             </button>
         </div>
     );

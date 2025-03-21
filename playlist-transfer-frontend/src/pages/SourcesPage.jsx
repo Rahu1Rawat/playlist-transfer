@@ -1,22 +1,20 @@
 import LogoBar from "../components/LogoBar.jsx";
 import { TextField } from "@mui/material";
-import SourceCard from "../components/SourceCard.jsx";
 import spotifyLogo from "../assets/images/Spotify Logo.png";
-import amLogo from "../assets/images/Apple-Music-Logo.png";
-import { useCallback, useEffect, useState } from "react";
+import YTMLogo from "../assets/images/YouTube-Music-Logo.png"
+import { useCallback, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import { useAppContext } from "../contexts/AppContext.jsx";
+import PlatformCard from "../components/PlatformCard.jsx"; // Import your unified component
 
 export function SourcesPage() {
 
-    const [source, setSource] = useState(null);
+    const { source, setSource } = useAppContext(); // Destructure both source and setter
     const navigate = useNavigate();
-
-    console.log('Source:', source);
 
     const handleAuthMessage = useCallback((event) => {
         if (event.origin !== "http://localhost:8080") return;
         if (event.data === "authenticated") {
-            // Just send them to the next page, no step counting
             navigate("/select-playlists");
         }
     }, [navigate]);
@@ -43,20 +41,21 @@ export function SourcesPage() {
         );
     };
 
-    const handleAMClick = () => {
-        setSource('applemusic');
-
-        const width = 500;
-        const height = 600;
-        const left = (screen.width - width) / 2;
-        const top = (screen.height - height) / 2;
-
-        window.open(
-            "http://localhost:8080/applemusic/authorize",
-            "Apple Music Login",
-            `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`
-        );
-    };
+    // Yet to be implemented
+    // const handleYTMClick = () => {
+    //     setSource('YTMusic');
+    //
+    //     const width = 500;
+    //     const height = 600;
+    //     const left = (screen.width - width) / 2;
+    //     const top = (screen.height - height) / 2;
+    //
+    //     window.open(
+    //         "http://localhost:8080/?/?",
+    //         "YTMusic Login",
+    //         `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`
+    //     );
+    // };
 
     return (
         <div className="bg-customBlue min-h-screen">
@@ -77,17 +76,19 @@ export function SourcesPage() {
                     }} />
                 </div>
                 <div className="flex gap-7">
-                    <SourceCard
+                    <PlatformCard
+                        platformId="spotify"
+                        source={source}
                         imgSrc={spotifyLogo}
                         altText="Spotify Logo"
                         onClick={handleSpotifyClick}
-                        platform="spotify"
                     />
-                    <SourceCard
-                        imgSrc={amLogo}
-                        altText="Apple Music Logo"
-                        onClick={handleAMClick}
-                        platform="applemusic"
+                    <PlatformCard
+                        platformId="YTMusic"
+                        source={source}
+                        imgSrc={YTMLogo}
+                        altText="YTMLogo"
+                        // onClick={handleYTMClick}
                     />
                 </div>
             </div>
